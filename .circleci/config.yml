@@ -1,0 +1,51 @@
+version: 2.1
+
+jobs:
+    plan:
+        docker:
+            - image: cloudposse/geodesic:latest
+        steps:
+            - checkout
+            - run:
+                  name: terraform plan
+                  command: |
+                      terraform init -input=false
+                      terraform plan -input=false -compact-warnings -out=plan.file
+                      terraform show -json plan.file > plan.json
+            - store_artifacts:
+                  path: plan.json
+
+    deploy:
+        docker:
+            - image: cloudposse/geodesic:latest
+        steps:
+            - checkout
+            - run:
+                  name: add helm repos
+                  command: |
+                      helm repo add grafana https://grafana.github.io/helm-charts
+                      helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+                      helm repo add eks https://aws.github.io/eks-charts
+                      helm repo update
+            - run:
+                  name: terraform apply
+                  command: |
+                      terraform init -input=false
+                      terraform apply -input=false -compact-warnings -auto-approve
+            - run:
+                  name: Retrieve LB Connection Endpoint
+                  command: |
+                      endpoint=$(terraform show -json | jq '.values.outputs.load_balancer_hostname.value' | tr -d '"');
+                      echo $endpoint
+
+workflows:
+    build:
+        jobs:
+            - plan
+            - hold:
+                  type: approval
+                  requires:
+                      - plan
+            - deploy:
+                  requires:
+                      - hold
