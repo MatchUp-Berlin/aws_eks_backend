@@ -3,9 +3,9 @@ terraform {
   required_version = ">= 1.3.0"
 
   backend "s3" {
-    bucket = "terraform-state-01010101"
-    key    = "state/eks_state"
-    region = "us-east-1"
+    bucket = "terraform-state-1010101"
+    key    = "state/matchup_eks_state"
+    region = "eu-central-1"
   }
 
   required_providers {

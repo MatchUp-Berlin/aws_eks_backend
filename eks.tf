@@ -36,16 +36,13 @@ module "eks" {
     }
   }
 
-  # Fargate Profile(s)
-  fargate_profiles = {
-    default = {
-      name = "default"
-      selectors = [
-        {
-          namespace = "matchup"
-        }
-      ]
-    }
+  eks_managed_node_groups = {
+     worker_one = {
+      name           = "worker_one"
+      instance_types = ["t3.small"]
+      min_size       = 1
+      max_size       = 2
+     }
   }
 
   aws_auth_roles = [
