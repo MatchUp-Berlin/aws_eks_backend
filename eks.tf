@@ -19,20 +19,12 @@ module "eks" {
 
   node_security_group_additional_rules = {
     ingress = {
-      description = "prometheus ingress"
+      description = "allow access from control plane to aws load balancer controller"
       protocol    = "tcp"
-      from_port   = 9090
-      to_port     = 9090
+      from_port   = 9443
+      to_port     = 9443
       type        = "ingress"
-      self        = true
-    }
-    egress = {
-      description      = "prometheus egress"
-      protocol         = "tcp"
-      from_port        = 9090
-      to_port          = 9090
-      type             = "egress"
-      cidr_blocks      = module.vpc.private_subnets_cidr_blocks
+      source_cluster_security_group = true
     }
   }
 

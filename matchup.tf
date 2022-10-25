@@ -42,9 +42,9 @@ resource "kubernetes_deployment" "matchup" {
 }
 
 /* Service */
-resource "kubernetes_service" "matchup" {
+resource "kubernetes_service" "matchup-lb" {
   metadata {
-    name      = "matchup"
+    name      = "matchup-lb"
     namespace = "matchup"
   }
   spec {

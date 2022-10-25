@@ -32,3 +32,23 @@ variable "GRAFANA_PASSWORD" {
   type        = string
   sensitive   = true
 }
+
+### MatchUp Info ####
+
+variable "AWS_APPSYNC_APIKEY" {
+  description = "api key for aws appsync access"
+  type        = string
+  sensitive   = true
+}
+
+variable "AWS_APPSYNC_GRAPHQLENDPOINT" {
+  description = "endpoint for aws appsync access"
+  type        = string
+  sensitive   = true
+}
+
+variable "AWS_USER_FILES_S3_BUCKET" {
+  description = "s3 bucket for file storage"
+  type        = string
+  sensitive   = true
+}

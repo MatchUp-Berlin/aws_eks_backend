@@ -48,7 +48,6 @@ resource "kubernetes_service" "grafana-lb" {
       port        = 80
       target_port = 3000
     }
-
     type = "LoadBalancer"
   }
 }
