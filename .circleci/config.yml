@@ -42,10 +42,7 @@ workflows:
     build:
         jobs:
             - plan
-            - hold:
-                  type: approval
-                  requires:
-                      - plan
             - deploy:
-                  requires:
-                      - hold
+                  filters:
+                      branches:
+                          only: main

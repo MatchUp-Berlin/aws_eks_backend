@@ -49,7 +49,7 @@ resource "kubernetes_service" "matchup" {
   }
   spec {
     selector = {
-      app = "matchup"
+      "app" = "matchup"
     }
     port {
       port        = 80
