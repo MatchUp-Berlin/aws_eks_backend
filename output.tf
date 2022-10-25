@@ -26,3 +26,9 @@ output "vpc_public_subnets" {
 output "load_balancer_hostname" {
   value = kubernetes_service.grafana-lb.status.0.load_balancer.0.ingress.0.hostname
 }
+
+### ECR Info ####
+
+output "ecr_repo" {
+  value = data.aws_ecr_image.matchup_image.repository_name
+}

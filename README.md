@@ -1,4 +1,8 @@
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/mitcheman/aws_eks_cluster/tree/main.svg?style=svg&circle-token=c967a80fed74421260c5b0e6c2c8ef4c48648598)](https://dl.circleci.com/status-badge/redirect/gh/mitcheman/aws_eks_cluster/tree/main)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/MatchUp-Berlin/aws_eks_backend/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/MatchUp-Berlin/aws_eks_backend/tree/main)
+
+MatchUp is currently in the process of moving off of Vercel to its own AWS EKS Cluster.
+
+This repo contains the EKS deployment, along with MatchUp and the Prometheus/Grafana Helm Charts to monitor it.
 
 ## Setup
 
