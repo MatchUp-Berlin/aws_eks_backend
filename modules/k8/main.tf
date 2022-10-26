@@ -60,6 +60,36 @@ resource "helm_release" "grafana" {
     }
 }
 
+resource "helm_release" "karpenter" {
+    namespace        = "karpenter"
+    create_namespace = true
+
+    name       = "karpenter"
+    repository = "oci://public.ecr.aws/karpenter"
+    chart      = "karpenter"
+    version    = "v0.18.1"
+
+    set {
+    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    value = var.karpenter_role_arn
+    }
+
+    set {
+    name  = "clusterName"
+    value = var.cluster_name
+    }
+
+    set {
+    name  = "clusterEndpoint"
+    value = var.cluster_endpoint
+    }
+
+    set {
+    name  = "aws.defaultInstanceProfile"
+    value = var.karpenter_instance_profile
+    }
+}
+
 ### Deployments ###
 
 resource "kubernetes_deployment" "app" {
@@ -146,4 +176,35 @@ resource "kubernetes_horizontal_pod_autoscaler" "horizontalautoscaler" {
             name = var.app_name
         }
     }
+}
+
+### Provisioners ###
+
+resource "kubectl_manifest" "karpenter_provisioner" {
+  yaml_body = <<-YAML
+  apiVersion: karpenter.sh/v1alpha5
+  kind: Provisioner
+  metadata:
+    name: default
+  spec:
+    requirements:
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values: ["spot"]
+    limits:
+      resources:
+        cpu: 1000
+    provider:
+      subnetSelector:
+        Name: "*private*"
+      securityGroupSelector:
+        karpenter.sh/discovery/${var.cluster_id}: ${var.cluster_id}
+      tags:
+        karpenter.sh/discovery/${var.cluster_id}: ${var.cluster_id}
+    ttlSecondsAfterEmpty: 30
+  YAML
+
+  depends_on = [
+    helm_release.karpenter
+  ]
 }

@@ -6,3 +6,7 @@ variable "terraform_service_account" {
   type    = string
   default = "terraform"
 }
+
+variable "cluster_name" {
+  type = string
+}

@@ -26,6 +26,7 @@ module "iam" {
     source                    = "../modules/iam"
     aws_environment           = var.aws_environment
     terraform_service_account = var.terraform_service_account
+    cluster_name              = var.cluster_name
 }
 
 module "eks" {
@@ -42,12 +43,20 @@ module "eks" {
     subnet_ids                      = module.vpc.private_subnets
 
     node_security_group_additional_rules = {
-    ingress = {
-        description = "allow access from control plane to aws load balancer controller"
-        protocol    = "tcp"
-        from_port   = 9443
-        to_port     = 9443
-        type        = "ingress"
+    ingress_load_balancer_controller = {
+        description                   = "allow access from control plane to aws load balancer controller"
+        protocol                      = "tcp"
+        from_port                     = 9443
+        to_port                       = 9443
+        type                          = "ingress"
+        source_cluster_security_group = true
+        }
+    ingress_nodes_karpenter_port = {
+        description                   = "Cluster API to Node group for Karpenter webhook"
+        protocol                      = "tcp"
+        from_port                     = 8443
+        to_port                       = 8443
+        type                          = "ingress"
         source_cluster_security_group = true
         }
     }
@@ -78,18 +87,23 @@ module "eks" {
     tags = {
         Terraform   = "true"
         Environment = var.aws_environment
+        # This will tag the launch template created for use by Karpenter
+        "karpenter.sh/discovery/${var.cluster_name}" = var.cluster_name
     }
 }
 
 module "k8" {
-    source           = "../modules/k8"
-    aws_environment  = var.aws_environment
-    cluster_id       = module.eks.cluster_id
-    cluster_name     = var.cluster_name
-    grafana_admin    = var.grafana_admin
-    grafana_password = var.grafana_password
-    app_name         = var.app_name
-    app_repo         = module.ecr.ecr_repo_url
+    source                     = "../modules/k8"
+    aws_environment            = var.aws_environment
+    cluster_id                 = module.eks.cluster_id
+    cluster_name               = var.cluster_name
+    cluster_endpoint           = module.eks.cluster_endpoint
+    grafana_admin              = var.grafana_admin
+    grafana_password           = var.grafana_password
+    app_name                   = var.app_name
+    app_repo                   = module.ecr.ecr_repo_url
+    karpenter_instance_profile = module.iam.karpenter_instance_profile
+    karpenter_role_arn         = module.karpenter_irsa.iam_role_arn
 }
 
 module "load_balancer_controller_irsa_role" {
@@ -107,5 +121,26 @@ module "load_balancer_controller_irsa_role" {
     tags = {
         Terraform   = "true"
         Environment = var.aws_environment
+    }
+}
+
+module "karpenter_irsa" {
+    source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+    version = "5.3.1"
+
+    role_name                          = "karpenter-controller-${var.cluster_name}"
+    attach_karpenter_controller_policy = true
+
+    karpenter_tag_key               = "karpenter.sh/discovery/${var.cluster_name}"
+    karpenter_controller_cluster_id = module.eks.cluster_id
+    karpenter_controller_node_iam_role_arns = [
+        module.iam.eks_cluster_role_arn
+    ]
+
+    oidc_providers = {
+    ex = {
+        provider_arn               = module.eks.oidc_provider_arn
+        namespace_service_accounts = ["karpenter:karpenter"]
+    }
     }
 }

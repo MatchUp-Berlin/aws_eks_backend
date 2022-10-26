@@ -20,7 +20,8 @@ resource "aws_iam_role" "eks-cluster" {
                           "arn:aws:iam::aws:policy/AmazonEKSServicePolicy",
                           "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController",
                           "arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess",
-                          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/ecr-access"]
+                          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/ecr-access",
+                          "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"]
 
   tags = {
     Terraform   = "true"
@@ -95,4 +96,11 @@ resource "aws_iam_role" "ecr-manager" {
     Terraform   = "true"
     Environment = var.aws_environment
   }
+}
+
+### instance profile for karpenter ###
+
+resource "aws_iam_instance_profile" "karpenter" {
+  name = "KarpenterNodeInstanceProfile-${var.cluster_name}"
+  role = aws_iam_role.ecr-manager.name
 }
