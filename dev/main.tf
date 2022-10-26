@@ -27,6 +27,7 @@ module "iam" {
     aws_environment           = var.aws_environment
     terraform_service_account = var.terraform_service_account
     cluster_name              = var.cluster_name
+    eks_node_group_iam_role   = module.eks.eks_managed_node_groups["node_group1"].iam_role_name
 }
 
 module "eks" {
@@ -62,12 +63,12 @@ module "eks" {
     }
 
     eks_managed_node_groups = {
-        worker_one = {
-        name           = "worker_one"
-        instance_types = ["t3.small"]
-        min_size       = 2
-        desired_size   = 2
-        max_size       = 3
+        node_group1 = {
+            name           = "node_group1"
+            instance_types = ["t3.small"]
+            min_size       = 2
+            desired_size   = 2
+            max_size       = 3
         }
     }
 
@@ -138,9 +139,9 @@ module "karpenter_irsa" {
     ]
 
     oidc_providers = {
-    ex = {
-        provider_arn               = module.eks.oidc_provider_arn
-        namespace_service_accounts = ["karpenter:karpenter"]
-    }
+        ex = {
+            provider_arn               = module.eks.oidc_provider_arn
+            namespace_service_accounts = ["karpenter:karpenter"]
+        }
     }
 }
