@@ -1,33 +1,38 @@
 
 ### AWS Info ###
 
-variable "AWS_REGION" {
+variable "aws_region" {
   default = "eu-central-1"
 }
 
-variable "AWS_ENVIRONMENT" {
+variable "aws_environment" {
   default = "dev"
 }
 
 ### Cluster Info ###
 
-variable "CLUSTER_NAME" {
+variable "cluster_name" {
+  default = "matchup"
+}
+
+### ECR Info ###
+variable "app_name" {
   default = "matchup"
 }
 
 ### Account Info ###
 
-variable "TERRAFORM_SERVICE_ACCOUNT" {
+variable "terraform_service_account" {
   default = "terraform"
 }
 
-variable "GRAFANA_ADMIN" {
+variable "grafana_admin" {
   description = "Grafana administrator username"
   type        = string
   sensitive   = true
 }
 
-variable "GRAFANA_PASSWORD" {
+variable "grafana_password" {
   description = "Grafana administrator password"
   type        = string
   sensitive   = true

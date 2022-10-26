@@ -1,6 +1,3 @@
-data "aws_eks_cluster" "cluster" {
-  name = module.eks.cluster_id
-}
 
 ### Kubernetes authentication and connection for Helm Provider ###
 
@@ -15,29 +12,6 @@ provider "helm" {
       args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.name]
       command     = "aws"
     }
-  }
-}
-
-### K8 Load Balancer Controller Helm Chart ###
-
-resource "helm_release" "AWS_Load_Balancer_Controller" {
-  name       = "aws-load-balancer-controller"
-  chart      = "eks/aws-load-balancer-controller"
-  namespace  = "kube-system"
-
-  set {
-    name  = "clusterName"
-    value = var.CLUSTER_NAME
-  }
-
-  set {
-    name  = "serviceAccount.create"
-    value = true
-  }
-
-  set {
-    name  = "serviceAccount.name"
-    value = "aws-load-balancer-controller"
   }
 }
 

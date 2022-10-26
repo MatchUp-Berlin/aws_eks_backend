@@ -1,4 +1,3 @@
-
 ### Cluster Info ###
 
 output "cluster_id" {
@@ -19,16 +18,4 @@ output "vpc_private_subnets" {
 
 output "vpc_public_subnets" {
   value = module.vpc.public_subnets_cidr_blocks
-}
-
-### Load Balancer Hostname ###
-
-output "load_balancer_hostname" {
-  value = kubernetes_service.grafana-lb.status.0.load_balancer.0.ingress.0.hostname
-}
-
-### ECR Info ####
-
-output "ecr_repo" {
-  value = data.aws_ecr_image.matchup_image.repository_name
 }
