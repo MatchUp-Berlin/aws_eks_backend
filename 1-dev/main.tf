@@ -17,11 +17,6 @@ module "vpc" {
     }
 }
 
-module "ecr" {
-    source          = "../modules/ecr"
-    app_name        = var.app_name
-}
-
 module "iam" {
     source                    = "../modules/iam"
     aws_environment           = var.aws_environment
@@ -102,7 +97,7 @@ module "k8" {
     grafana_admin              = var.grafana_admin
     grafana_password           = var.grafana_password
     app_name                   = var.app_name
-    app_repo                   = module.ecr.ecr_repo_url
+    app_repo                   = data.aws_ecr_repository.app.repository_url
     karpenter_instance_profile = module.iam.karpenter_instance_profile
     karpenter_role_arn         = module.karpenter_irsa.iam_role_arn
 }
