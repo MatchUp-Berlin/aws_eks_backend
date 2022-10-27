@@ -98,7 +98,6 @@ resource "kubernetes_deployment" "app" {
         namespace = kubernetes_namespace.app.metadata[0].name
     }
     spec {
-        replicas = 1
     selector {
         match_labels = {
         app = var.app_name
@@ -198,9 +197,9 @@ resource "kubectl_manifest" "karpenter_provisioner" {
       subnetSelector:
         Name: "*private*"
       securityGroupSelector:
-        karpenter.sh/discovery/${var.cluster_id}: ${var.cluster_id}
+        karpenter.sh/discovery/${var.cluster_name}: ${var.cluster_name}
       tags:
-        karpenter.sh/discovery/${var.cluster_id}: ${var.cluster_id}
+        karpenter.sh/discovery/${var.cluster_name}: ${var.cluster_name}
     ttlSecondsAfterEmpty: 30
   YAML
 

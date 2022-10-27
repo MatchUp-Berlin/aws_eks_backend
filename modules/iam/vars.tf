@@ -10,3 +10,7 @@ variable "terraform_service_account" {
 variable "cluster_name" {
   type = string
 }
+
+variable "eks_node_group_iam_role" {
+  type = string
+}

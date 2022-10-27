@@ -36,6 +36,10 @@ _helm repo update_
 
 For further helm customization see the available parameters for Grafana [Here](https://artifacthub.io/packages/helm/grafana/grafana#configuration) and Prometheus [Here](https://artifacthub.io/packages/helm/prometheus-community/prometheus). These paremeters can be added via _set_ within the Terraform Helm Release Resource with examples [Here](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release#example-usage---chart-repository) and within the kubernetes.tf file.
 
+This deployment uses Karpenter based horizontal node scaling. If you have never run spot instaces on your aws account before the following command will need to be run via the aws cli:
+<br>
+_aws iam create-service-linked-role --aws-service-name spot.amazonaws.com_
+
 ## Deployment
 
 To view the planned deployment run the following command: <br>

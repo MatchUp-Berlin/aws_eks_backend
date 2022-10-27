@@ -102,5 +102,5 @@ resource "aws_iam_role" "ecr-manager" {
 
 resource "aws_iam_instance_profile" "karpenter" {
   name = "KarpenterNodeInstanceProfile-${var.cluster_name}"
-  role = aws_iam_role.ecr-manager.name
+  role = var.eks_node_group_iam_role
 }
