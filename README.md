@@ -1,4 +1,4 @@
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/MatchUp-Berlin/aws_eks_backend/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/MatchUp-Berlin/aws_eks_backend/tree/main)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/MatchUp-Berlin/matchup-platform/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/MatchUp-Berlin/matchup-platform/tree/main)
 
 MatchUp is currently in the process of moving off of Vercel to its own AWS EKS Cluster.
 
