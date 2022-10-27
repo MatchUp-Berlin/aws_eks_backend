@@ -57,6 +57,10 @@ module "eks" {
         }
     }
 
+    node_security_group_tags = {
+        "karpenter.sh/discovery/${var.cluster_name}" = var.cluster_name
+    }
+
     eks_managed_node_groups = {
         node_group1 = {
             name           = "node_group1"
@@ -69,8 +73,8 @@ module "eks" {
 
     aws_auth_roles = [
         {
-        rolearn  = module.iam.eks_cluster_role_arn
-        username = module.iam.eks_cluster_role_name
+            rolearn  = module.iam.eks_cluster_role_arn
+            username = module.iam.eks_cluster_role_name
         },
     ]
 
@@ -122,15 +126,18 @@ module "load_balancer_controller_irsa_role" {
 
 module "karpenter_irsa" {
     source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-    version = "5.3.1"
+    version = "5.3.3"
+    role_name                               = "${var.cluster_name}-karpenter"
+    attach_karpenter_controller_policy      = true
+    karpenter_tag_key                       = "karpenter.sh/discovery/${var.cluster_name}"
+    karpenter_controller_cluster_id         = module.eks.cluster_id
 
-    role_name                          = "karpenter-controller-${var.cluster_name}"
-    attach_karpenter_controller_policy = true
+    karpenter_controller_ssm_parameter_arns = [
+        "arn:aws:ssm:*:*:parameter/aws/service/*"
+    ]
 
-    karpenter_tag_key               = "karpenter.sh/discovery/${var.cluster_name}"
-    karpenter_controller_cluster_id = module.eks.cluster_id
     karpenter_controller_node_iam_role_arns = [
-        module.iam.eks_cluster_role_arn
+        module.eks.eks_managed_node_groups["node_group1"].iam_role_arn
     ]
 
     oidc_providers = {
