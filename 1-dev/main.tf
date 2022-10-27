@@ -113,6 +113,13 @@ module "k8" {
     load_balancer_controller_role_arn = module.load_balancer_controller_irsa_role.iam_role_arn
 }
 
+module "route53" {
+    source                     = "../modules/route53"
+    app_url                    = var.app_url
+    app_name                   = var.app_name
+    app_load_balancer_hostname = module.k8.app_load_balancer_hostname
+}
+
 module "load_balancer_controller_irsa_role" {
     source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
     version = "5.3.3"

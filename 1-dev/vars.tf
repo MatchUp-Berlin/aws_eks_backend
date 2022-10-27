@@ -20,6 +20,11 @@ variable "app_name" {
   default = "matchup"
 }
 
+variable "app_url" {
+  description = "dns for app"
+  default = "getmatchup.org"
+}
+
 ### Account Info ###
 
 variable "terraform_service_account" {
