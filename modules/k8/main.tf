@@ -21,18 +21,23 @@ resource "helm_release" "AWS_Load_Balancer_Controller" {
     namespace  = "kube-system"
 
     set {
-    name  = "clusterName"
-    value = var.cluster_name
+        name  = "clusterName"
+        value = var.cluster_name
     }
 
     set {
-    name  = "serviceAccount.create"
-    value = true
+        name  = "serviceAccount.create"
+        value = true
     }
 
     set {
-    name  = "serviceAccount.name"
-    value = "aws-load-balancer-controller"
+        name  = "serviceAccount.name"
+        value = "aws-load-balancer-controller"
+    }
+
+    set {
+        name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+        value = var.load_balancer_controller_role_arn
     }
 }
 
@@ -53,10 +58,17 @@ resource "helm_release" "grafana" {
         name  = "adminUser"
         value = var.grafana_admin
     }
-
     set {
         name  = "adminPassword"
         value = var.grafana_password
+    }
+    set {
+        name  = "ingress.enabled"
+        value = true
+    }
+    set {
+        name  = "ingress.hosts[0]"
+        value = kubernetes_ingress_v1.grafana-alb.status.0.load_balancer.0.ingress.0.hostname
     }
 }
 
@@ -124,37 +136,101 @@ resource "kubernetes_deployment" "app" {
 
 ### Services ###
 
-resource "kubernetes_service" "grafana-lb" {
-    metadata {
-        name      = "grafana-lb"
-        namespace = "prometheus"
-    }
-    spec {
-        selector = {
-            "app.kubernetes.io/name" = "grafana"
+resource "kubernetes_service" "grafana-nodeport" {
+  metadata {
+    name = "grafana-nodeport"
+    namespace = "prometheus"
+  }
+  spec {
+    selector = {
+      "app.kubernetes.io/name" = "grafana"
     }
     port {
-        port        = 80
-        target_port = 3000
+      port        = 80
+      target_port = 3000
+      protocol    = "TCP"
     }
-        type = "LoadBalancer"
+    type = "NodePort"
+  }
+}
+
+resource "kubernetes_service" "app-nodeport" {
+  metadata {
+    name = "${var.app_name}-nodeport"
+    namespace = var.app_name
+  }
+  spec {
+    selector = {
+      "app" = var.app_name
+    }
+    port {
+      port        = 80
+      target_port = 3000
+      protocol    = "TCP"
+    }
+    type = "NodePort"
+  }
+}
+
+### Ingress ALB ###
+
+resource "kubernetes_ingress_v1" "grafana-alb" {
+    wait_for_load_balancer = true
+    metadata {
+        name      = "grafana-alb"
+        namespace = "prometheus"
+            annotations = {
+                "kubernetes.io/ingress.class" = "alb",
+                "alb.ingress.kubernetes.io/scheme" = "internet-facing",
+                "alb.ingress.kubernetes.io/target-type" = "ip"
+            }
+    }
+    spec {
+        rule {
+            http {
+                path {
+                    path = "/*"
+                    backend {
+                        service {
+                            name = kubernetes_service.grafana-nodeport.metadata.0.name
+                            port {
+                                number = 80
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
-resource "kubernetes_service" "app-lb" {
+resource "kubernetes_ingress_v1" "app-alb" {
+    wait_for_load_balancer = true
     metadata {
         name      = "${var.app_name}-lb"
         namespace = kubernetes_namespace.app.metadata[0].name
+            annotations = {
+                "kubernetes.io/ingress.class" = "alb",
+                "alb.ingress.kubernetes.io/scheme" = "internet-facing",
+                "alb.ingress.kubernetes.io/target-type" = "ip"
+            }
     }
     spec {
-        selector = {
-            "app" = var.app_name
+        rule {
+            http {
+                path {
+                    path = "/*"
+                    backend {
+                        service {
+                            name = kubernetes_service.app-nodeport.metadata.0.name
+                            port {
+                                number = 80
+                            }
+                        }
+                    }
+                }
+            }
         }
-        port {
-            port        = 80
-            target_port = var.app_port
-        }
-        type = "LoadBalancer"
     }
 }
 

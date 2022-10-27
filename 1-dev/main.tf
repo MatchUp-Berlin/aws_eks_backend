@@ -9,8 +9,14 @@ module "vpc" {
     enable_nat_gateway   = true
     enable_dns_hostnames = true
     enable_dns_support   = true
-    public_subnet_tags   = {"kubernetes.io/role/elb" = "1"}
-    private_subnet_tags  = {"kubernetes.io/role/internal-elb" = "1"}
+    public_subnet_tags   = {
+        "kubernetes.io/role/elb" = "1",
+        "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+        }
+    private_subnet_tags  = {
+        "kubernetes.io/role/internal-elb" = "1",
+        "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+        }
     tags = {
         Terraform   = "true"
         Environment = var.aws_environment
@@ -93,22 +99,24 @@ module "eks" {
 }
 
 module "k8" {
-    source                     = "../modules/k8"
-    aws_environment            = var.aws_environment
-    cluster_id                 = module.eks.cluster_id
-    cluster_name               = var.cluster_name
-    cluster_endpoint           = module.eks.cluster_endpoint
-    grafana_admin              = var.grafana_admin
-    grafana_password           = var.grafana_password
-    app_name                   = var.app_name
-    app_repo                   = data.aws_ecr_repository.app.repository_url
-    karpenter_instance_profile = module.iam.karpenter_instance_profile
-    karpenter_role_arn         = module.karpenter_irsa.iam_role_arn
+    source                            = "../modules/k8"
+    aws_environment                   = var.aws_environment
+    cluster_id                        = module.eks.cluster_id
+    cluster_name                      = var.cluster_name
+    cluster_endpoint                  = module.eks.cluster_endpoint
+    grafana_admin                     = var.grafana_admin
+    grafana_password                  = var.grafana_password
+    app_name                          = var.app_name
+    app_repo                          = data.aws_ecr_repository.app.repository_url
+    karpenter_instance_profile        = module.iam.karpenter_instance_profile
+    karpenter_role_arn                = module.karpenter_irsa.iam_role_arn
+    load_balancer_controller_role_arn = module.load_balancer_controller_irsa_role.iam_role_arn
 }
 
 module "load_balancer_controller_irsa_role" {
     source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-    role_name                              = "load-balancer-controller"
+    version = "5.3.3"
+    role_name                              = "aws-load-balancer-controller"
     attach_load_balancer_controller_policy = true
 
     oidc_providers = {

@@ -47,3 +47,7 @@ variable "karpenter_instance_profile" {
 variable "karpenter_role_arn" {
   type = string
 }
+
+variable "load_balancer_controller_role_arn" {
+  type = string
+}

@@ -19,3 +19,11 @@ output "vpc_private_subnets" {
 output "vpc_public_subnets" {
     value = module.vpc.public_subnets_cidr_blocks
 }
+
+output "grafana_load_balancer_hostname" {
+    value = module.k8.grafana_load_balancer_hostname
+}
+
+output "grafana_load_balancer_ip" {
+    value = module.k8.grafana_load_balancer_ip
+}
