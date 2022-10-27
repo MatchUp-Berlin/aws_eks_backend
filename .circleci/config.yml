@@ -9,6 +9,7 @@ jobs:
             - run:
                   name: terraform plan
                   command: |
+                      cd 1-dev
                       terraform init -input=false
                       terraform plan -input=false -compact-warnings -out=plan.file
                       terraform show -json plan.file > plan.json
@@ -30,6 +31,7 @@ jobs:
             - run:
                   name: terraform apply
                   command: |
+                      cd 1-dev
                       terraform init -input=false
                       terraform apply -input=false -compact-warnings -auto-approve
             - run:
