@@ -46,7 +46,7 @@ workflows:
                   base_revision: << pipeline.git.base_revision >>
                   revision: <<pipeline.git.revision>>
             - snyk/scan-iac:
-                  severity-threshold: high
+                  args: '--severity-threshold=medium'
             - deploy:
                   name: deploy-stage
                   context: stage
