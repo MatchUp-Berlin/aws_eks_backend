@@ -113,13 +113,16 @@ module "k8" {
     karpenter_instance_profile        = module.iam.karpenter_instance_profile
     karpenter_role_arn                = module.karpenter_irsa.iam_role_arn
     load_balancer_controller_role_arn = module.load_balancer_controller_irsa_role.iam_role_arn
+    cert_arn                          = module.route53.cert_arn
 }
 
 module "route53" {
-    source                     = "../modules/route53"
-    app_url                    = var.app_url
-    app_name                   = var.app_name
-    app_load_balancer_hostname = module.k8.app_load_balancer_hostname
+    source                      = "../modules/route53"
+    aws_environment             = var.aws_environment
+    app_url                     = var.app_url
+    app_name                    = var.app_name
+    app_load_balancer_hostname  = module.k8.app_load_balancer_hostname
+    app2_load_balancer_hostname = module.k8.app2_load_balancer_hostname
 }
 
 module "load_balancer_controller_irsa_role" {

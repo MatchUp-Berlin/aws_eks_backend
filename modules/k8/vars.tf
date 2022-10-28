@@ -54,6 +54,10 @@ variable "app_port2" {
   default     = 3000
 }
 
+variable "cert_arn" {
+  description = "arn for ssl cert for alb validation"
+}
+
 variable "karpenter_instance_profile" {
   type = string
 }

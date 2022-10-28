@@ -202,6 +202,24 @@ resource "kubernetes_service" "app-nodeport" {
   }
 }
 
+resource "kubernetes_service" "app2-nodeport" {
+  metadata {
+    name = "${var.app_name2}-nodeport"
+    namespace = var.app_name
+  }
+  spec {
+    selector = {
+      "app" = var.app_name2
+    }
+    port {
+      port        = 80
+      target_port = 3000
+      protocol    = "TCP"
+    }
+    type = "NodePort"
+  }
+}
+
 ### Ingress ALB ###
 
 resource "kubernetes_ingress_v1" "grafana-alb" {
@@ -243,6 +261,10 @@ resource "kubernetes_ingress_v1" "app-alb" {
                 "kubernetes.io/ingress.class" = "alb",
                 "alb.ingress.kubernetes.io/scheme" = "internet-facing",
                 "alb.ingress.kubernetes.io/target-type" = "ip"
+                "alb.ingress.kubernetes.io/certificate-arn" =  var.cert_arn
+                "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTP\": 80}, {\"HTTPS\":443}]"
+                "alb.ingress.kubernetes.io/actions.ssl-redirect" = "{\"Type\": \"redirect\", \"RedirectConfig\": { \"Protocol\": \"HTTPS\", \"Port\": \"443\", \"StatusCode\": \"HTTP_301\"}}"
+                "alb.ingress.kubernetes.io/ssl-policy" = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
             }
     }
     spec {
@@ -253,6 +275,40 @@ resource "kubernetes_ingress_v1" "app-alb" {
                     backend {
                         service {
                             name = kubernetes_service.app-nodeport.metadata.0.name
+                            port {
+                                number = 80
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+resource "kubernetes_ingress_v1" "app2-alb" {
+    wait_for_load_balancer = true
+    metadata {
+        name      = "${var.app_name2}-lb"
+        namespace = kubernetes_namespace.app.metadata[0].name
+            annotations = {
+                "kubernetes.io/ingress.class" = "alb",
+                "alb.ingress.kubernetes.io/scheme" = "internet-facing",
+                "alb.ingress.kubernetes.io/target-type" = "ip"
+                "alb.ingress.kubernetes.io/certificate-arn" =  var.cert_arn
+                "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTP\": 80}, {\"HTTPS\":443}]"
+                "alb.ingress.kubernetes.io/actions.ssl-redirect" = "{\"Type\": \"redirect\", \"RedirectConfig\": { \"Protocol\": \"HTTPS\", \"Port\": \"443\", \"StatusCode\": \"HTTP_301\"}}"
+                "alb.ingress.kubernetes.io/ssl-policy" = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
+            }
+    }
+    spec {
+        rule {
+            http {
+                path {
+                    path = "/*"
+                    backend {
+                        service {
+                            name = kubernetes_service.app2-nodeport.metadata.0.name
                             port {
                                 number = 80
                             }
