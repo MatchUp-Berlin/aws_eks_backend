@@ -38,17 +38,18 @@ jobs:
 workflows:
     build:
         jobs:
-            - plan:
-                  context: stage
             - deploy:
+                  name: deploy-stage
                   context: stage
             - plan:
+                  name: plan-prod
                   context: prod
             - hold:
                   type: approval
                   requires:
-                      - plan
+                      - plan-prod
             - deploy:
+                  name: deploy-prod
                   context: prod
                   filters:
                       branches:
