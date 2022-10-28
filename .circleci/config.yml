@@ -38,9 +38,12 @@ jobs:
 workflows:
     build:
         jobs:
-            - plan
+            - plan:
+                  context: stage
             - deploy:
                   context: stage
+            - plan:
+                  context: prod
             - hold:
                   type: approval
                   requires:
