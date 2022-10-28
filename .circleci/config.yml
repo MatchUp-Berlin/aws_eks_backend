@@ -9,7 +9,7 @@ jobs:
             - run:
                   name: terraform plan
                   command: |
-                      cd 1-dev
+                      cd terraform
                       terraform init -input=false
                       terraform plan -input=false -compact-warnings -out=plan.file
                       terraform show -json plan.file > plan.json
@@ -31,20 +31,24 @@ jobs:
             - run:
                   name: terraform apply
                   command: |
-                      cd 1-dev
+                      cd terraform
                       terraform init -input=false
                       terraform apply -input=false -compact-warnings -auto-approve
-            - run:
-                  name: Retrieve LB Connection Endpoint
-                  command: |
-                      endpoint=$(terraform show -json | jq '.values.outputs.load_balancer_hostname.value' | tr -d '"');
-                      echo $endpoint
 
 workflows:
     build:
         jobs:
             - plan
             - deploy:
+                  context: stage
+            - hold:
+                  type: approval
+                  requires:
+                      - plan
+            - deploy:
+                  context: prod
                   filters:
                       branches:
                           only: main
+                  requires:
+                      - hold
