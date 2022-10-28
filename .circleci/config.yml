@@ -1,4 +1,7 @@
 version: 2.1
+orbs:
+    ggshield: gitguardian/ggshield@1.1.4
+    snyk: snyk/snyk@1.2.3
 
 jobs:
     plan:
@@ -9,7 +12,7 @@ jobs:
             - run:
                   name: terraform plan
                   command: |
-                      cd 1-dev
+                      cd terraform
                       terraform init -input=false
                       terraform plan -input=false -compact-warnings -out=plan.file
                       terraform show -json plan.file > plan.json
@@ -31,20 +34,39 @@ jobs:
             - run:
                   name: terraform apply
                   command: |
-                      cd 1-dev
+                      cd terraform
                       terraform init -input=false
                       terraform apply -input=false -compact-warnings -auto-approve
-            - run:
-                  name: Retrieve LB Connection Endpoint
-                  command: |
-                      endpoint=$(terraform show -json | jq '.values.outputs.load_balancer_hostname.value' | tr -d '"');
-                      echo $endpoint
 
 workflows:
     build:
         jobs:
-            - plan
+            - ggshield/scan:
+                  name: ggshield-scan
+                  base_revision: << pipeline.git.base_revision >>
+                  revision: <<pipeline.git.revision>>
+            - snyk/scan-iac:
+                  args: '--severity-threshold=high'
             - deploy:
+                  name: deploy-stage
+                  context: stage
+            - plan:
+                  name: plan-prod
+                  context: prod
+            - hold:
+                  type: approval
                   filters:
                       branches:
                           only: main
+                  requires:
+                      - plan-prod
+            - deploy:
+                  name: deploy-prod
+                  context: prod
+                  filters:
+                      branches:
+                          only: main
+                  requires:
+                      - snyk/scan-iac
+                      - deploy-stage
+                      - hold
