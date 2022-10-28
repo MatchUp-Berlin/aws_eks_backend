@@ -45,7 +45,8 @@ workflows:
                   name: ggshield-scan
                   base_revision: << pipeline.git.base_revision >>
                   revision: <<pipeline.git.revision>>
-            - snyk/scan-iac
+            - snyk/scan-iac:
+                  severity-threshold: high
             - deploy:
                   name: deploy-stage
                   context: stage
