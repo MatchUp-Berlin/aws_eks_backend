@@ -77,6 +77,14 @@ module "eks" {
         type                         = "egress"
         cidr_blocks                  = module.vpc.private_subnets_cidr_blocks
         }
+    ingress_metrics_server = {
+        description                   = "allow access from control plane to metrics server"
+        protocol                      = "tcp"
+        from_port                     = 4443
+        to_port                       = 4443
+        type                          = "ingress"
+        source_cluster_security_group = true
+        }
     }
 
     node_security_group_tags = {

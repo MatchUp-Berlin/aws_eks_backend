@@ -46,6 +46,11 @@ resource "helm_release" "metrics-server" {
     chart      = "metrics-server/metrics-server"
     version    = "3.8.2"
     namespace  = "kube-system"
+
+    set {
+        name = "args[0]"
+        value = "--kubelet-insecure-tls=true"
+    }
 }
 
 resource "helm_release" "prometheus" {
