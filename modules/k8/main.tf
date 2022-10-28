@@ -41,6 +41,13 @@ resource "helm_release" "AWS_Load_Balancer_Controller" {
     }
 }
 
+resource "helm_release" "metrics-server" {
+    name       = "metrics-server"
+    chart      = "metrics-server/metrics-server"
+    version    = "3.8.2"
+    namespace  = "kube-system"
+}
+
 resource "helm_release" "prometheus" {
     name       = "prometheus"
     chart      = "prometheus-community/prometheus"
@@ -323,10 +330,10 @@ resource "kubernetes_ingress_v1" "app2-alb" {
 
 ### Horizontal Autoscaler ###
 
-resource "kubernetes_horizontal_pod_autoscaler" "horizontalautoscaler" {
+resource "kubernetes_horizontal_pod_autoscaler" "app-hpa" {
     metadata {
-        name = "horizontal-autoscaler"
-        namespace = "kube-system"
+        name = "${var.app_name}-hpa"
+        namespace = var.app_name
     }
 
     spec {
@@ -336,6 +343,25 @@ resource "kubernetes_horizontal_pod_autoscaler" "horizontalautoscaler" {
         scale_target_ref {
             kind = "Deployment"
             name = var.app_name
+            api_version = "apps/v1"
+        }
+    }
+}
+
+resource "kubernetes_horizontal_pod_autoscaler" "app2-hpa" {
+    metadata {
+        name = "${var.app_name2}-hpa"
+        namespace = var.app_name
+    }
+
+    spec {
+        max_replicas = 10
+        min_replicas = 1
+
+        scale_target_ref {
+            kind = "Deployment"
+            name = var.app_name2
+            api_version = "apps/v1"
         }
     }
 }
