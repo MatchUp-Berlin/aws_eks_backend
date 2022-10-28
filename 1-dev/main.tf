@@ -61,6 +61,22 @@ module "eks" {
         type                          = "ingress"
         source_cluster_security_group = true
         }
+    ingress_prometheus = {
+        description                  = "prometheus ingress"
+        protocol                     = "tcp"
+        from_port                    = 9090
+        to_port                      = 9090
+        type                         = "ingress"
+        self                         = true
+        }
+    egress_prometheus = {
+        description                  = "prometheus egress"
+        protocol                     = "tcp"
+        from_port                    = 9090
+        to_port                      = 9090
+        type                         = "egress"
+        cidr_blocks                  = module.vpc.private_subnets_cidr_blocks
+        }
     }
 
     node_security_group_tags = {
