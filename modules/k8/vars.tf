@@ -40,6 +40,20 @@ variable "app_port" {
   default     = 3000
 }
 
+variable "app_name2" {
+  type        = string
+}
+
+variable "app_repo2" {
+  description = "ecr repo url for matchup image"
+  type        = string
+}
+
+variable "app_port2" {
+  description = "container port for app"
+  default     = 3000
+}
+
 variable "karpenter_instance_profile" {
   type = string
 }

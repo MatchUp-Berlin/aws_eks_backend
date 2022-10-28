@@ -25,6 +25,10 @@ variable "app_url" {
   default = "getmatchup.org"
 }
 
+variable "app_name2" {
+  default = "matchup-landing"
+}
+
 ### Account Info ###
 
 variable "terraform_service_account" {

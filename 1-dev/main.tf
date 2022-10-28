@@ -108,6 +108,8 @@ module "k8" {
     grafana_password                  = var.grafana_password
     app_name                          = var.app_name
     app_repo                          = data.aws_ecr_repository.app.repository_url
+    app_name2                         = var.app_name2
+    app_repo2                         = data.aws_ecr_repository.app2.repository_url
     karpenter_instance_profile        = module.iam.karpenter_instance_profile
     karpenter_role_arn                = module.karpenter_irsa.iam_role_arn
     load_balancer_controller_role_arn = module.load_balancer_controller_irsa_role.iam_role_arn

@@ -134,6 +134,36 @@ resource "kubernetes_deployment" "app" {
     }
 }
 
+resource "kubernetes_deployment" "app2" {
+    metadata {
+        name      = var.app_name2
+        namespace = kubernetes_namespace.app.metadata[0].name
+    }
+    spec {
+    selector {
+        match_labels = {
+        app = var.app_name2
+        }
+    }
+    template {
+        metadata {
+            labels = {
+                app = var.app_name2
+            }
+        }
+        spec {
+            container {
+                image = "${var.app_repo2}:latest"
+                name  = var.app_name2
+                port {
+                    container_port = var.app_port2
+                }
+            }
+        }
+    }
+    }
+}
+
 ### Services ###
 
 resource "kubernetes_service" "grafana-nodeport" {
