@@ -1,4 +1,7 @@
 version: 2.1
+orbs:
+    ggshield: gitguardian/ggshield@1.1.4
+    snyk: snyk/snyk@1.2.3
 
 jobs:
     plan:
@@ -38,6 +41,11 @@ jobs:
 workflows:
     build:
         jobs:
+            - ggshield/scan:
+                  name: ggshield-scan
+                  base_revision: << pipeline.git.base_revision >>
+                  revision: <<pipeline.git.revision>>
+            - snyk/scan-iac
             - deploy:
                   name: deploy-stage
                   context: stage
@@ -58,4 +66,6 @@ workflows:
                       branches:
                           only: main
                   requires:
+                      - snyk/scan-iac
+                      - deploy-stage
                       - hold
