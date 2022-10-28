@@ -263,7 +263,7 @@ resource "kubernetes_ingress_v1" "app-alb" {
                 "alb.ingress.kubernetes.io/target-type" = "ip"
                 "alb.ingress.kubernetes.io/certificate-arn" =  var.cert_arn
                 "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTP\": 80}, {\"HTTPS\":443}]"
-                "alb.ingress.kubernetes.io/actions.ssl-redirect" = "{\"Type\": \"redirect\", \"RedirectConfig\": { \"Protocol\": \"HTTPS\", \"Port\": \"443\", \"StatusCode\": \"HTTP_301\"}}"
+                "alb.ingress.kubernetes.io/ssl-redirect" =  "443"
                 "alb.ingress.kubernetes.io/ssl-policy" = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
             }
     }
@@ -298,6 +298,7 @@ resource "kubernetes_ingress_v1" "app2-alb" {
                 "alb.ingress.kubernetes.io/certificate-arn" =  var.cert_arn
                 "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTP\": 80}, {\"HTTPS\":443}]"
                 "alb.ingress.kubernetes.io/actions.ssl-redirect" = "{\"Type\": \"redirect\", \"RedirectConfig\": { \"Protocol\": \"HTTPS\", \"Port\": \"443\", \"StatusCode\": \"HTTP_301\"}}"
+                "alb.ingress.kubernetes.io/ssl-redirect" =  "443"
                 "alb.ingress.kubernetes.io/ssl-policy" = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
             }
     }
