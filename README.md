@@ -2,7 +2,24 @@
 
 MatchUp is currently in the process of moving off of Vercel to its own AWS EKS Cluster.
 
-This repo contains the EKS deployment, along with MatchUp and the Prometheus/Grafana Helm Charts to monitor it.
+This repo contains the following infrastucture:
+
+-   AWS VPC
+    -   two subnets spread across two regions in one AZ
+-   AWS EKS Cluster
+    -   Single Node group
+-   Required IAM Roles and Polices
+-   Kubernetes deployment
+    -   Prometheus Helm Chart
+    -   Grafana Helm Chart
+    -   Karpanter node autoscaling provisioner
+    -   AWS Load balancer controller
+    -   Custom personal application deployment
+    -   Ingress rules for application load balacer(ALB) setup
+-   Route53
+    -   Hosted zone
+    -   A name records
+    -   SSL cert in AWS Cert Manager
 
 ## Setup
 
