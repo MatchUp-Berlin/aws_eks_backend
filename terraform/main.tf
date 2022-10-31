@@ -45,46 +45,32 @@ module "eks" {
     subnet_ids                      = module.vpc.private_subnets
 
     node_security_group_additional_rules = {
-    ingress_load_balancer_controller = {
-        description                   = "allow access from control plane to aws load balancer controller"
-        protocol                      = "tcp"
-        from_port                     = 9443
-        to_port                       = 9443
-        type                          = "ingress"
-        source_cluster_security_group = true
-        }
-    ingress_nodes_karpenter_port = {
-        description                   = "Cluster API to Node group for Karpenter webhook"
-        protocol                      = "tcp"
-        from_port                     = 8443
-        to_port                       = 8443
-        type                          = "ingress"
-        source_cluster_security_group = true
-        }
-    ingress_prometheus = {
-        description                  = "prometheus ingress"
-        protocol                     = "tcp"
-        from_port                    = 9090
-        to_port                      = 9090
-        type                         = "ingress"
-        self                         = true
-        }
-    egress_prometheus = {
-        description                  = "prometheus egress"
-        protocol                     = "tcp"
-        from_port                    = 9090
-        to_port                      = 9090
-        type                         = "egress"
-        cidr_blocks                  = module.vpc.private_subnets_cidr_blocks
-        }
-    ingress_metrics_server = {
-        description                   = "allow access from control plane to metrics server"
-        protocol                      = "tcp"
-        from_port                     = 4443
-        to_port                       = 4443
-        type                          = "ingress"
-        source_cluster_security_group = true
-        }
+    ingress_self_all = {
+      description = "Node to node all ports/protocols"
+      protocol    = "-1"
+      from_port   = 0
+      to_port     = 0
+      type        = "ingress"
+      self        = true
+    }
+    #Recommended outbound traffic for Node groups
+    egress_all = {
+      description      = "Node all egress"
+      protocol         = "-1"
+      from_port        = 0
+      to_port          = 0
+      type             = "egress"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+    }
+    ingress_self_all = {
+        description = "Node to node ingress all ports/protocols"
+        type        = "ingress"
+        protocol    = "-1"
+        from_port   = 0
+        to_port     = 0
+        self        = true
+    }
     }
 
     node_security_group_tags = {
