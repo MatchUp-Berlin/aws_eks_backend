@@ -53,23 +53,13 @@ module "eks" {
       type        = "ingress"
       self        = true
     }
-    #Recommended outbound traffic for Node groups
     egress_all = {
       description      = "Node all egress"
       protocol         = "-1"
       from_port        = 0
       to_port          = 0
       type             = "egress"
-      cidr_blocks      = ["0.0.0.0/0"]
-      ipv6_cidr_blocks = ["::/0"]
-    }
-    ingress_self_all = {
-        description = "Node to node ingress all ports/protocols"
-        type        = "ingress"
-        protocol    = "-1"
-        from_port   = 0
-        to_port     = 0
-        self        = true
+      cidr_blocks      = module.vpc.private_subnets_cidr_blocks
     }
     }
 

@@ -51,6 +51,11 @@ resource "helm_release" "metrics-server" {
         name = "args[0]"
         value = "--kubelet-insecure-tls=true"
     }
+
+    set {
+        name = "containerPort"
+        value = 10250
+    }
 }
 
 resource "helm_release" "prometheus" {
@@ -140,6 +145,16 @@ resource "kubernetes_deployment" "app" {
                 port {
                     container_port = var.app_port
                 }
+                resources {
+                    limits = {
+                        cpu    = "0.5"
+                        memory = "512Mi"
+                    }
+                    requests = {
+                        cpu    = "250m"
+                        memory = "50Mi"
+                    }
+                }
             }
         }
     }
@@ -169,6 +184,16 @@ resource "kubernetes_deployment" "app2" {
                 name  = var.app_name2
                 port {
                     container_port = var.app_port2
+                }
+                resources {
+                    limits = {
+                        cpu    = "0.5"
+                        memory = "512Mi"
+                    }
+                    requests = {
+                        cpu    = "250m"
+                        memory = "50Mi"
+                    }
                 }
             }
         }
