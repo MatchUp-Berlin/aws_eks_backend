@@ -21,6 +21,9 @@ This repo contains the following infrastucture:
     -   A name records
     -   SSL cert in AWS Cert Manager
 
+<br>
+![AWS Architecture](matchup_eks.png)
+
 ## Setup
 
 ### Variables
